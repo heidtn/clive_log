@@ -23,11 +23,11 @@ class TextField(Field):
 
     def get_display_text(self, current_width):
         # TODO clean this up, minus 1 bad
-        toshow = self.text[:current_width] - len(self.START_SYMBOL) - 1
+        toshow = self.text[:current_width - len(self.START_SYMBOL) - 1]
         text = ""
         text += GREEN_COLOR_CODE + self.HEADER_SYMBOL*current_width + "\n"
         text += GREEN_COLOR_CODE + self.START_SYMBOL + WHITE_COLOR_CODE + " "
-        text += self.text + "\n"
+        text += toshow + "\n"
         text += GREEN_COLOR_CODE + self.HEADER_SYMBOL*current_width + "\n" + RESET_COLOR_CODE
         return text
 
@@ -35,7 +35,7 @@ class CellField(Field):
     # TODO create a passable config for these symbols?
     HEADER_SYMBOL = "#"
     FOOTER_SYMBOL = "#"
-    SEPERATOR_SYMBOL = "|"
+    SEPARATOR_SYMBOL = "|"
     def __init__(self, name, num_cells):
         self.name = name
         self.num_cells = num_cells
@@ -54,16 +54,18 @@ class CellField(Field):
     def _generate_cell_text(self, current_width):
         total_cell_text_width = current_width - self.num_cells - 1
         single_cell_text_width = total_cell_text_width // self.num_cells
-        last_cell_width = total_cell_text_width % self.num_cells + single_cell_text_width
-        seperator_display = GREEN_COLOR_CODE + self.SEPERATOR_SYMBOL + RESET_COLOR_CODE
+        # Subtract one character to make room for the last separator
+        last_cell_width = total_cell_text_width % self.num_cells + single_cell_text_width - 1
+        separator_display = GREEN_COLOR_CODE + self.SEPARATOR_SYMBOL + RESET_COLOR_CODE
         text = ""
         for i in range(len(self.cells)):
             cell = self.cells[i]
             width = last_cell_width if i == len(self.cells) - 1 else single_cell_text_width
             cell_text = cell[:width]
-            text += seperator_display
-            text += cell_text
-            text += seperator_display
+            filler = " " * (width - len(cell_text))
+            text += separator_display
+            text += cell_text + filler
+        text += separator_display
         
         return text
 
@@ -84,31 +86,19 @@ class GraphField(Field):
     def _simplify_series(self, series, max_size):
         # TODO perhaps allow averaging data here instead of aliasing data points?
         series_length = len(series)
-        if series_length < max_size:
-            return self._create_shorter_simplified_series(series, series_length, max_size)
-        elif series_length > max_size:
-            return self._create_longer_simplified_series(series, series_length, max_size)
-        else:
+        if series_length == max_size:
             return list(series)
+        else:
+            return self._create_simplified_series(series, series_length, max_size)
 
-    def _create_shorter_simplified_series(self, series, series_length, max_size):
+    def _create_simplified_series(self, series, series_length, max_size):
         simplified_series = []
-        # TODO theres a prettier way to display where we split the 'difference' between the last n
-        # values appropriately, but extending works fine for now
-        multiplier = max_size // series_length
-        difference = series_length - multiplier*series_length
-        for i in range(series_length):
-            for j in range(multiplier):
-                simplified_series.append(series[i])
-        for _ in range(difference):
-            simplified_series.append(series[-1])
-        return simplified_series
-
-    def _create_longer_simplified_series(self, series, series_length, max_size):
-        simplified_series = []
-        multiplier = series_length // max_size
+        step_size = series_length / max_size
         for i in range(max_size):
-            simplified_series.append(series[i*multiplier])
+            index = round(step_size * i)
+            if index >= series_length:
+                index = series_length - 1
+            simplified_series.append(series[index])
         return simplified_series
 
     def get_display_text(self, current_width):
@@ -119,9 +109,12 @@ class GraphField(Field):
         Example: print(plot(series, { 'height' :10 })) 
         """
         cfg = self.cfg or {}
-        series = self._simplify_series(self.series, current_width)
-        minimum = cfg['minimum'] if 'minimum' in cfg else min(series)
-        maximum = cfg['maximum'] if 'maximum' in cfg else max(series)
+
+        # TODO, bit of a catch-22 here.  Would rather get minimum and maximum from the simplified series
+        # but that affects the ylabel text and thus the length of the simplified series.  Is there a better
+        # way than using the full series?
+        minimum = cfg['minimum'] if 'minimum' in cfg else min(self.series)
+        maximum = cfg['maximum'] if 'maximum' in cfg else max(self.series)
 
         interval = abs(float(maximum) - float(minimum))
         offset = cfg['offset'] if 'offset' in cfg else 3
@@ -134,8 +127,16 @@ class GraphField(Field):
         intmax2 = int(max2)
 
         rows = abs(intmax2 - intmin2)
-        width = len(series) + offset
+        
         placeholder = cfg['format'] if 'format' in cfg else '{:8.2f} '
+        # TODO fix this code to not use magic numbers.  11 obtained from placeholder format {:8.2f} 8 value + offsets 3 value
+        actual_series_width = current_width - 11
+        if actual_series_width <= 0:
+            series = []
+        else:
+            series = self._simplify_series(self.series, actual_series_width)
+
+        width = len(series) + offset
 
         result = [[' '] * width for i in range(rows + 1)]
 
@@ -145,6 +146,9 @@ class GraphField(Field):
             result[y - intmin2][max(offset - len(label), 0)] = label
             result[y - intmin2][offset - 1] = '┼' if y == 0 else '┤'
 
+        if actual_series_width <= 0:
+            return '\n'.join([''.join(row) for row in result]) + '\n'
+        
         y0 = int(series[0] * ratio - min2)
         result[rows - y0][offset - 1] = '┼' # first value
 

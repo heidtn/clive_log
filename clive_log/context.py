@@ -1,5 +1,6 @@
 from . import fields
 import os
+import shutil
 
 MOVE_UP_CODE = "\u001b[{n}A"
 RETURN_CODE = "\r"
@@ -7,6 +8,10 @@ CLEAR_CODE = "\u001b[0J"  # clear from cursor until the end of the screen
 
 # TODO this context approach doesn't make a lot of sense.  If we print to context1, then context2, then context3, weird things will happen
 # How do we keep the write of a context between terminal writes from overwriting that text?
+
+# TODO if we detect a terminal size change, ensure we appropriately delete the last n values
+
+# TODO terminal width doesn't seem to work in multiplexers like tmux if resized during run
 
 class Context:
     def __init__(self, name):
@@ -57,8 +62,8 @@ class Context:
 
     def _get_terminal_width(self):
         #TODO this only works on linux, windows version?
-        rows, columns = os.popen('stty size', 'r').read().split()
-        return int(columns)
+        columns, rows = shutil.get_terminal_size(fallback=(80, 24))
+        return columns
 
     def _write(self, text):
         newlines = text.count("\n")
