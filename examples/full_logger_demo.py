@@ -1,6 +1,6 @@
 import clive_log
 import time
-import numpy as np
+import math
 
 context = clive_log.Context("test")
 context.add_graph_field("test_graph")
@@ -12,7 +12,7 @@ context.add_cell_field("test_cells", CELL_COUNT)
 words = "sphinx of black quartz judge my vow".split()
 t = 0
 while True:
-    series = [7 * np.cos(i*0.25) for i in range(t, t+80)]
+    series = [7 * math.cos(i*0.25) for i in range(t, t+80)]
     word1 = words[t % len(words)]
     word2 = words[(t + 1) % len(words)]
 

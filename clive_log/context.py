@@ -1,5 +1,6 @@
 from . import fields
 import os
+import sys
 import shutil
 
 MOVE_UP_CODE = "\u001b[{n}A"
@@ -56,8 +57,8 @@ class Context:
 
     def _clear_current_text(self):
         # TODO we should probably execute a clear text command on each line
-        print(MOVE_UP_CODE.format(n=self.current_lines), end="")
-        print(CLEAR_CODE, end="")
+        sys.stdout.write(MOVE_UP_CODE.format(n=self.current_lines))
+        sys.stdout.write(CLEAR_CODE)
         self.current_lines = 0
 
     def _get_terminal_width(self):
@@ -68,4 +69,4 @@ class Context:
     def _write(self, text):
         newlines = text.count("\n")
         self.current_lines += newlines
-        print(text, end="")
+        sys.stdout.write(text)

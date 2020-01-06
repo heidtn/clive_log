@@ -108,6 +108,8 @@ class GraphField(Field):
         cfg is a dictionary, thus dictionary syntax has to be used.
         Example: print(plot(series, { 'height' :10 })) 
         """
+        # TODO, refactor this section for readability
+
         cfg = self.cfg or {}
 
         # TODO, bit of a catch-22 here.  Would rather get minimum and maximum from the simplified series
