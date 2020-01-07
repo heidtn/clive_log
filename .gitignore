@@ -1,0 +1,5 @@
+build/
+dist/
+clive_log.egg-info
+.vscode/
+__pycache__
