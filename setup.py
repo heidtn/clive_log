@@ -9,6 +9,7 @@ setuptools.setup(
     author="Nathan",
     author_email="",
     description="A CLI live logging package",
+    url="https://github.com/heidtn/clive_log",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="",
