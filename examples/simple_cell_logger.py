@@ -14,4 +14,3 @@ while True:
     index += 1
     context.display()
     time.sleep(1.0)
-

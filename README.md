@@ -2,7 +2,7 @@
 
 This is a simple library for quick python debugging of live data streams.  It's intended to run in the command line only
 and to be very compact.  The primary goals of the project are to not use any external dependencies (besides the python libraries)
-and to try and keep the total LOC under ~1000 to make it accessible to new people.
+and to try and keep the total LOC under ~1000 to make it accessible.
 
 ### Getting started
 
@@ -10,6 +10,7 @@ Check the examples folder for some basic demos on how to use this library.
 
 The general usage is:
 ```python
+import clive_log
 context = clive_log.Context("test")
 context.add_text_field("text_field1")
 while True:

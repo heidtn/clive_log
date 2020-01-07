@@ -11,5 +11,4 @@ while True:
     index = (index + 1) % len(words)
     context.write_text_field("field1", word)
     context.display()
-    #time.sleep(1.0)
-
+    time.sleep(1.0)

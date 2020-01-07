@@ -5,15 +5,18 @@ RESET_COLOR_CODE = "\u001b[0m"
 GREEN_COLOR_CODE = "\u001b[32m"
 WHITE_COLOR_CODE = "\u001b[37m"
 
+
 class Field(ABC):
     def get_display_text(self):
         raise NotImplementedError()
+
 
 class TextField(Field):
     # TODO create a passable config for these symbols?
     HEADER_SYMBOL = "#"
     FOOTER_SYMBOL = "#"
     START_SYMBOL = "|"
+
     def __init__(self, name):
         self.name = name
         self.text = ""
@@ -28,14 +31,17 @@ class TextField(Field):
         text += GREEN_COLOR_CODE + self.HEADER_SYMBOL*current_width + "\n"
         text += GREEN_COLOR_CODE + self.START_SYMBOL + WHITE_COLOR_CODE + " "
         text += toshow + "\n"
-        text += GREEN_COLOR_CODE + self.HEADER_SYMBOL*current_width + "\n" + RESET_COLOR_CODE
+        text += GREEN_COLOR_CODE + self.HEADER_SYMBOL*current_width + "\n"
+        text += RESET_COLOR_CODE
         return text
+
 
 class CellField(Field):
     # TODO create a passable config for these symbols?
     HEADER_SYMBOL = "#"
     FOOTER_SYMBOL = "#"
     SEPARATOR_SYMBOL = "|"
+
     def __init__(self, name, num_cells):
         self.name = name
         self.num_cells = num_cells
@@ -48,7 +54,8 @@ class CellField(Field):
         text = ""
         text += GREEN_COLOR_CODE + self.HEADER_SYMBOL*current_width + "\n"
         text += self._generate_cell_text(current_width) + "\n"
-        text += GREEN_COLOR_CODE + self.HEADER_SYMBOL*current_width + "\n" + RESET_COLOR_CODE
+        text += GREEN_COLOR_CODE + self.HEADER_SYMBOL*current_width + "\n"
+        text += RESET_COLOR_CODE
         return text
 
     def _generate_cell_text(self, current_width):
@@ -66,7 +73,7 @@ class CellField(Field):
             text += separator_display
             text += cell_text + filler
         text += separator_display
-        
+
         return text
 
 
@@ -81,7 +88,8 @@ class GraphField(Field):
     def update_plot(self, series, new_cfg=None):
         # TODO use *args here for multiple axes
         self.series = series
-        if new_cfg: self.cfg = new_cfg
+        if new_cfg:
+            self.cfg = new_cfg
 
     def _simplify_series(self, series, max_size):
         # TODO perhaps allow averaging data here instead of aliasing data points?
@@ -102,19 +110,20 @@ class GraphField(Field):
         return simplified_series
 
     def get_display_text(self, current_width):
-        # The following is ripped directly from: https://github.com/kroitor/asciichart/blob/master/asciichartpy/__init__.py
+        # The following is ripped directly from:
+        # https://github.com/kroitor/asciichart/blob/master/asciichartpy/__init__.py
         # thanks to Igor Kroitor for putting it together
         """ Possible cfg parameters are 'minimum', 'maximum', 'offset', 'height' and 'format'.
         cfg is a dictionary, thus dictionary syntax has to be used.
-        Example: print(plot(series, { 'height' :10 })) 
+        Example: print(plot(series, { 'height' :10 }))
         """
         # TODO, refactor this section for readability
 
         cfg = self.cfg or {}
 
-        # TODO, bit of a catch-22 here.  Would rather get minimum and maximum from the simplified series
-        # but that affects the ylabel text and thus the length of the simplified series.  Is there a better
-        # way than using the full series?
+        # TODO, bit of a catch-22 here.  Would rather get minimum and maximum from the
+        # simplified series but that affects the ylabel text and thus the length of the
+        # simplified series.  Is there a better way than using the full series?
         minimum = cfg['minimum'] if 'minimum' in cfg else min(self.series)
         maximum = cfg['maximum'] if 'maximum' in cfg else max(self.series)
 
@@ -129,9 +138,10 @@ class GraphField(Field):
         intmax2 = int(max2)
 
         rows = abs(intmax2 - intmin2)
-        
+
         placeholder = cfg['format'] if 'format' in cfg else '{:8.2f} '
-        # TODO fix this code to not use magic numbers.  11 obtained from placeholder format {:8.2f} 8 value + offsets 3 value
+        # TODO fix this code to not use magic numbers.  11 obtained from
+        # placeholder format {:8.2f} 8 value + offsets 3 value
         actual_series_width = current_width - 11
         if actual_series_width <= 0:
             series = []
@@ -150,11 +160,11 @@ class GraphField(Field):
 
         if actual_series_width <= 0:
             return '\n'.join([''.join(row) for row in result]) + '\n'
-        
-        y0 = int(series[0] * ratio - min2)
-        result[rows - y0][offset - 1] = '┼' # first value
 
-        for x in range(0, len(series) - 1): # plot the line
+        y0 = int(series[0] * ratio - min2)
+        result[rows - y0][offset - 1] = '┼'  # first value
+
+        for x in range(0, len(series) - 1):  # plot the line
             y0 = int(round(series[x + 0] * ratio) - intmin2)
             y1 = int(round(series[x + 1] * ratio) - intmin2)
             if y0 == y1:
