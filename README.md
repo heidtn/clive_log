@@ -25,7 +25,6 @@ while True:
 There are still some issues with the system, namely:
 * artifacts when resizing
 * nonfunctional in terminal multiplexers
-* untested in windows
 
 ### Future Features
 
