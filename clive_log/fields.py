@@ -1,6 +1,8 @@
 from abc import ABC
 import math
 
+# TODO move ANSI codes into a different folder
+# ANSI Color codes
 RESET_COLOR_CODE = "\u001b[0m"
 GREEN_COLOR_CODE = "\u001b[32m"
 WHITE_COLOR_CODE = "\u001b[37m"
@@ -117,7 +119,7 @@ class GraphField(Field):
         cfg is a dictionary, thus dictionary syntax has to be used.
         Example: print(plot(series, { 'height' :10 }))
         """
-        # TODO, refactor this section for readability
+        # TODO refactor this whole section for readability
 
         cfg = self.cfg or {}
 
@@ -129,7 +131,7 @@ class GraphField(Field):
 
         interval = abs(float(maximum) - float(minimum))
         offset = cfg['offset'] if 'offset' in cfg else 3
-        height = cfg['height'] if 'height' in cfg else interval
+        height = cfg['height'] if 'height' in cfg else 12
         ratio = height / interval
         min2 = math.floor(float(minimum) * ratio)
         max2 = math.ceil(float(maximum) * ratio)
@@ -140,9 +142,7 @@ class GraphField(Field):
         rows = abs(intmax2 - intmin2)
 
         placeholder = cfg['format'] if 'format' in cfg else '{:8.2f} '
-        # TODO fix this code to not use magic numbers.  11 obtained from
-        # placeholder format {:8.2f} 8 value + offsets 3 value
-        actual_series_width = current_width - 11
+        actual_series_width = current_width - (len(placeholder) + offset)
         if actual_series_width <= 0:
             series = []
         else:
