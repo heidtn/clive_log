@@ -3,6 +3,7 @@ import os
 import sys
 import shutil
 from collections import OrderedDict 
+import ctypes
 
 MOVE_UP_CODE = "\u001b[{n}A"
 RETURN_CODE = "\r"
@@ -15,15 +16,24 @@ CLEAR_CODE = "\u001b[0J"  # clear from cursor until the end of the screen
 
 # TODO terminal width doesn't seem to work in multiplexers like tmux if resized during run
 
+STD_OUTPUT_HANDLE = -11
+ENABLE_PROCESSED_OUTPUT = 1
+ENABLE_WRAP_AT_EOL_OUTPUT = 2
+ENABLE_VIRTUAL_TERMINAL_PROCESSING = 4
+PRETTY_COLORS_IN_TERMINAL = ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_WRAP_AT_EOL_OUTPUT | ENABLE_PROCESSED_OUTPUT
+
 
 class Context:
-    def __init__(self, name):
+    def __init__(self, name, autoset_windows=True):
         self.name = name
         self.fields = OrderedDict() 
         self.text_field_names = OrderedDict() 
         self.graph_field_names = OrderedDict() 
         self.cell_field_names = OrderedDict() 
         self.current_lines = 0
+        if autoset_windows and os.name == 'nt':
+            kernel32 = ctypes.windll.kernel32
+            kernel32.SetConsoleMode(kernel32.GetStdHandle(STD_OUTPUT_HANDLE), PRETTY_COLORS_IN_TERMINAL)
 
     def add_text_field(self, name):
         text_field = fields.TextField(name)
