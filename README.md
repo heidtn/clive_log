@@ -4,6 +4,11 @@ This is a simple library for quick python debugging of live data streams.  It's 
 and to be very compact.  The primary goals of the project are to not use any external dependencies (besides the python libraries)
 and to try and keep the total LOC under ~1000 to make it accessible.
 
+Currently supported fields are:
+* Text fields
+* Cell fields
+* Graph fields
+
 ### Getting started
 
 Check the examples folder for some basic demos on how to use this library.
