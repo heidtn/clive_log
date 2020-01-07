@@ -11,6 +11,11 @@ Currently supported fields are:
 
 ### Getting started
 
+This library can be installed with pip:
+```bash
+pip install clive_log
+```
+
 Check the examples folder for some basic demos on how to use this library.
 
 The general usage is:
