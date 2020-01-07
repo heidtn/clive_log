@@ -7,12 +7,11 @@ setuptools.setup(
     name="clive_log",
     version="0.0.1",
     author="Nathan",
-    author_email="",
+    author_email="strigusconsilium@gmail.com",
     description="A CLI live logging package",
     url="https://github.com/heidtn/clive_log",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

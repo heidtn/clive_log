@@ -23,7 +23,7 @@ while True:
     context.display()
 ```
 
-![clive_log Demo](clive_demo.gif)
+![clive_log Demo](extras/clive_demo.gif)
 
 
 ### Known Issues
