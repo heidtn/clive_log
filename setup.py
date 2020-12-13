@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="clive_log",
-    version="0.0.1",
+    version="0.1.0",
     author="Nathan",
     author_email="strigusconsilium@gmail.com",
     description="A CLI live logging package",
