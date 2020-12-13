@@ -89,7 +89,7 @@ class GraphField(Field):
 
     def update_plot(self, series, new_cfg=None):
         # TODO use *args here for multiple axes
-        self.series = series
+        self.series = list(series)
         if new_cfg:
             self.cfg = new_cfg
 
@@ -130,6 +130,8 @@ class GraphField(Field):
         maximum = cfg['maximum'] if 'maximum' in cfg else max(self.series)
 
         interval = abs(float(maximum) - float(minimum))
+        # Catch a future divide by 0 if possible
+        interval = 1 if interval == 0 else interval
         offset = cfg['offset'] if 'offset' in cfg else 3
         height = cfg['height'] if 'height' in cfg else 12
         ratio = height / interval
@@ -139,7 +141,7 @@ class GraphField(Field):
         intmin2 = int(min2)
         intmax2 = int(max2)
 
-        rows = abs(intmax2 - intmin2)
+        rows = max(abs(intmax2 - intmin2), 1)
 
         placeholder = cfg['format'] if 'format' in cfg else '{:8.2f} '
         actual_series_width = current_width - (len(placeholder) + offset)
